@@ -1,1 +1,1 @@
-# LincolnDB
+# LycheeDB
