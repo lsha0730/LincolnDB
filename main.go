@@ -21,14 +21,16 @@ func main() {
 	r.POST("/", func(c *gin.Context) {
 		var data map[string]string
 		if err := c.ShouldBindJSON(&data); err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 			return
 		}
 
 		queryString := data["query"]
 		if err := handleQuery(queryString); err != nil {
 			c.AbortWithStatusJSON(http.StatusOK, err.Error())
+			return
 		}
+
 		c.AbortWithStatusJSON(http.StatusOK, "success")
 	})
 
