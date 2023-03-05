@@ -1,22 +1,11 @@
 package util
 
 import (
-	"encoding/json"
 	"errors"
 	"reflect"
 )
 
-func ValidateQuery(queryString string) error {
-	var query interface{}
-	err := json.Unmarshal([]byte(queryString), &query)
-	if err != nil {
-		return err
-	}
-	castedQuery, ok := query.(map[string]interface{})
-	if !ok {
-		return errors.New("ERROR: Query is not a JSON object")
-	}
-
+func ValidateQuery(castedQuery map[string]interface{}) error {
 	// Mandatory fields checking
 	if err := ValidateOp(castedQuery); err != nil {
 		return err
@@ -39,16 +28,14 @@ func ValidateQuery(queryString string) error {
 		if err := ValidateList(castedQuery); err != nil {
 			return err
 		}
-	case MAKECOLLECTION:
-		if err := ValidateMake(castedQuery); err != nil {
-			return err
-		}
-	case MAKEDOCUMENT:
-		if err := ValidateMake(castedQuery); err != nil {
-			return err
-		}
-	default:
-		return errors.New("ERROR: Unexpected operation type")
+		// case MAKECOLLECTION:
+		// 	if err := ValidateMake(castedQuery); err != nil {
+		// 		return err
+		// 	}
+		// case MAKEDOCUMENT:
+		// 	if err := ValidateMake(castedQuery); err != nil {
+		// 		return err
+		// 	}
 	}
 
 	return nil
@@ -88,10 +75,10 @@ func ValidateList(query map[string]interface{}) error {
 }
 
 func ValidateMake(query map[string]interface{}) error {
-	op := query["op"]
-	if op != MAKECOLLECTION && op != MAKEDOCUMENT {
-		return errors.New("ERROR: Not a make operation")
-	}
+	// op := query["op"]
+	// if op != MAKECOLLECTION && op != MAKEDOCUMENT {
+	// 	return errors.New("ERROR: Not a make operation")
+	// }
 
 	return nil
 }
@@ -110,8 +97,9 @@ func ValidateOp(query map[string]interface{}) error {
 	validOps[READ] = true
 	validOps[WRITE] = true
 	validOps[LIST] = true
-	validOps[MAKECOLLECTION] = true
-	validOps[MAKEDOCUMENT] = true
+	// validOps[MAKECOLLECTION] = true
+	// validOps[MAKEDOCUMENT] = true
+	validOps[MAKEDB] = true
 
 	if !validOps[op.(string)] {
 		return errors.New("ERROR: Invalid operand clause")
