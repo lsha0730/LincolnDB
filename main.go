@@ -39,24 +39,21 @@ func main() {
 			c.AbortWithStatusJSON(http.StatusOK, parseError.Error())
 			return
 		}
-		if err := handleQuery(query); err != nil {
-			c.AbortWithStatusJSON(http.StatusOK, err.Error())
-			return
-		}
 
-		c.AbortWithStatusJSON(http.StatusOK, "success")
+		if err := handleQuery(query, c); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		}
 		return
 	})
 
 	r.Run(PORT)
 }
 
-func handleQuery(query map[string]interface{}) error {
+func handleQuery(query map[string]interface{}, c *gin.Context) error {
 	if err := util.ValidateQuery(query); err != nil {
 		return err
 	}
 
-	// TODO: Actually do something with the query
 	db := query["db"].(string)
 	op := query["op"].(string)
 	path := query["path"].(string)
@@ -65,13 +62,19 @@ func handleQuery(query map[string]interface{}) error {
 
 	switch op {
 	case util.READ:
-		driver.HandleRead(path)
+		c.AbortWithStatusJSON(http.StatusOK, driver.HandleRead(path))
+		break
 	case util.WRITE:
 		driver.HandleWrite(path, query["value"])
+		c.AbortWithStatusJSON(http.StatusOK, "success")
+		break
 	case util.LIST:
 		driver.HandleList(path)
-	case util.MAKEDB:
-		util.NewDB(query["name"].(string))
+		break
+	// case util.MAKEDB:
+	// 	util.NewDB(query["name"].(string))
+	// 	c.AbortWithStatusJSON(http.StatusOK, "success")
+	// 	break
 	default:
 		return errors.New("ERROR: Unexpected operation type")
 	}

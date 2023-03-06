@@ -25,8 +25,16 @@ func NewDB(name string) (*Driver, error) {
 	return &driver, nil
 }
 
-func (d *Driver) HandleRead(path string) error {
-	return nil
+func (d *Driver) HandleRead(path string) interface{} {
+	filePath := d.root + ".json"
+
+	original := map[string]interface{}{}
+	b1, err1 := ioutil.ReadFile(filePath)
+	if err1 == nil {
+		json.Unmarshal(b1, &original)
+	}
+
+	return GetData(original, path)
 }
 
 func (d *Driver) HandleWrite(path string, value interface{}) error {
