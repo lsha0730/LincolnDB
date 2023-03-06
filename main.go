@@ -65,8 +65,11 @@ func handleQuery(query map[string]interface{}, c *gin.Context) error {
 		c.AbortWithStatusJSON(http.StatusOK, driver.HandleRead(path))
 		break
 	case util.WRITE:
-		driver.HandleWrite(path, query["value"])
-		c.AbortWithStatusJSON(http.StatusOK, "success")
+		if err := driver.HandleWrite(path, query["value"]); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		} else {
+			c.AbortWithStatusJSON(http.StatusOK, "success")
+		}
 		break
 	case util.LIST:
 		driver.HandleList(path)
