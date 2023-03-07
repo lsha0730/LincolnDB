@@ -15,14 +15,15 @@ import (
 	"github.com/lsha0730/LycheeDB/util"
 )
 
-var PORT string = ":8000"
+var PORT string = ":80"
 var ROOT string = "./"
 
 func main() {
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	// config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowAllOrigins = true
 	r.Use(cors.New(config))
 
 	r.POST("/", func(c *gin.Context) {
@@ -46,7 +47,7 @@ func main() {
 		return
 	})
 
-	r.Run(PORT)
+	r.Run("0.0.0.0" + PORT)
 }
 
 func handleQuery(query map[string]interface{}, c *gin.Context) error {
